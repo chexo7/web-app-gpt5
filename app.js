@@ -3963,13 +3963,13 @@ function getMondayOfWeek(year, week) {
     function addTableSectionsToPdf(doc, title, data, margin) {
         const { headers, headerClasses, rows, rowClasses, cellClasses } = data;
         const pageWidth = doc.internal.pageSize.getWidth() - margin.left - margin.right;
-        const firstColWidth = 110;
-        const colWidth = 65;
+        const firstColWidth = 120;
+        const colWidth = 68;
         const colsPerPage = Math.max(1, Math.floor((pageWidth - firstColWidth) / colWidth));
         const firstCol = headers[0];
         const otherCols = headers.slice(1);
         let offset = 0;
-        let startY = margin.top;
+        let startY = margin.top + 8;
         // Reduce font size to minimize table row height
         doc.setFontSize(10);
         doc.text(title, margin.left, startY - 12);
@@ -4050,7 +4050,7 @@ function getMondayOfWeek(year, week) {
             });
             offset += colsPerPage;
             if (offset < otherCols.length) {
-                doc.addPage('letter', 'landscape');
+                doc.addPage('letter', 'portrait');
                 startY = margin.top;
                 doc.text(title, margin.left, startY - 12);
             } else {
@@ -4066,12 +4066,12 @@ function getMondayOfWeek(year, week) {
             alert('Biblioteca jsPDF no cargada.');
             return;
         }
-        const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
         if (typeof doc.autoTable !== 'function') {
             alert('Plugin AutoTable no disponible.');
             return;
         }
-        const margin = { top: 56, left: 46, right: 46 };
+        const margin = { top: 72, left: 46, right: 46 };
 
         // Cover page
         const coverTitle = 'Resumen de Flujo de Caja';
@@ -4098,8 +4098,8 @@ function getMondayOfWeek(year, week) {
         doc.text(tsCover, margin.left, 32);
         doc.text('Página 1', pageW - margin.right - doc.getTextWidth('Página 1'), 20);
 
-        // TOC placeholder
-        doc.addPage('letter', 'landscape');
+        // TOC placeholder (reservado)
+        doc.addPage('letter', 'portrait');
         const tocPage = doc.getCurrentPageInfo().pageNumber;
         doc.setFontSize(16);
         doc.text('Índice', margin.left, margin.top - 10);
@@ -4110,7 +4110,7 @@ function getMondayOfWeek(year, week) {
 
         // Executive Summary
         const addExecutiveSummary = () => {
-            doc.addPage('letter', 'landscape');
+            doc.addPage('letter', 'portrait');
             const startPage = doc.getCurrentPageInfo().pageNumber;
             toc.push({ title: 'Resumen Ejecutivo', page: startPage });
             doc.setFontSize(14);
@@ -4176,18 +4176,19 @@ function getMondayOfWeek(year, week) {
 
         addExecutiveSummary();
 
-        // Cashflow tables
+        // Cashflow tables (cada sección comienza en nueva página)
         const mensualData = extractTableData(document.getElementById('cashflow-mensual-table'));
         toc.push({ title: 'Flujo de Caja - Mensual', page: doc.getNumberOfPages()+1 });
         addTableSectionsToPdf(doc, 'Flujo de Caja - Mensual', mensualData, margin);
-        doc.addPage('letter', 'landscape');
+        // salto controlado para evitar solapamientos
+        doc.addPage('letter', 'portrait');
         const semanalData = extractTableData(document.getElementById('cashflow-semanal-table'));
         toc.push({ title: 'Flujo de Caja - Semanal', page: doc.getNumberOfPages()+1 });
         addTableSectionsToPdf(doc, 'Flujo de Caja - Semanal', semanalData, margin);
 
         // Ingresos y Gastos por Mes
         function addSimpleTable(title, headers, rows) {
-            doc.addPage('letter', 'landscape');
+            doc.addPage('letter', 'portrait');
             const startPage = doc.getCurrentPageInfo().pageNumber;
             toc.push({ title, page: startPage });
             doc.setFontSize(12);
@@ -4258,7 +4259,7 @@ function getMondayOfWeek(year, week) {
             doc.text(pageStr, w - margin.right - doc.getTextWidth(pageStr), y);
             y += 16;
             if (y > doc.internal.pageSize.getHeight() - margin.top) {
-                doc.addPage('letter', 'landscape');
+                doc.addPage('letter', 'portrait');
                 y = margin.top;
             }
         });
