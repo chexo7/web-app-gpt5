@@ -22,6 +22,10 @@
   --text-red: #ff3b30;
   --text-orange: #ff9500;
   --disabled-bg: #f0f0f0;
+  
+  /* Variables para tema claro (por defecto) */
+  --bg-primary: var(--background);
+  --text-primary: var(--text-color);
 }
 
 /* Reseteo y estilos base */
@@ -508,10 +512,10 @@ td.reimbursement-income {
 .text-blue { color: var(--primary-color) !important; }
 .text-green { color: var(--text-green) !important; }
 .text-orange { color: var(--text-orange) !important; }
-.text-purple { color: #7e57c2 !important; }
-.text-teal { color: #009688 !important; }
-.text-brown { color: #795548 !important; }
-.text-pink { color: #e91e63 !important; }
+.text-purple { color: #8B5CF6 !important; }
+.text-teal { color: #14B8A6 !important; }
+.text-brown { color: #A16207 !important; }
+.text-pink { color: #EC4899 !important; }
 .small-text { font-size: 0.8em; color: var(--light-text); }
 
 /* Column highlight for el período actual */
@@ -1351,4 +1355,37 @@ td.reimbursement-income {
     padding: 0;
 }
 .breakdown-popup li { margin: 2px 0; }
+
+/* Tema Oscuro Elegante */
+[data-theme="dark"] {
+    --background: #1a1a1a;
+    --card-bg: #2a2a2a;
+    --text-color: #f3f4f6;
+    --light-text: #d1d5db;
+    --border-color: #404040;
+    --header-bg: #1f1f1f;
+    --alt-row-bg: #333333;
+    --row-hover-bg: #404040;
+    --body-header-row-bg: #1f1f1f;
+    --disabled-bg: #2d2d2d;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    
+    --primary-color: #6366f1;
+    --primary-hover: #7c3aed;
+    --accent-color: #4ade80;
+    --accent-hover: #22c55e;
+    --danger-color: #f87171;
+    --danger-hover: #ef4444;
+    --text-green: #4ade80;
+    --text-red: #f87171;
+    --text-orange: #fb923c;
+    
+    --bg-primary: var(--background);
+    --text-primary: var(--text-color);
+}
+
+/* Transiciones suaves para cambio de tema */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
 

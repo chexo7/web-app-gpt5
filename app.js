@@ -1283,6 +1283,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (instantExpenseToggle) instantExpenseToggle.checked = !!currentBackupData.use_instant_expenses;
         // usdClpRateInput.value = currentBackupData.usd_clp_rate || ''; // No longer used
         // updateUsdClpInfoLabel(); // This will be handled by fetchAndUpdateUSDCLPRate
+        
+        // Cargar tema guardado o usar tema claro por defecto
+        const savedTheme = currentBackupData.theme || 'light';
+        if (themeSelector) {
+            themeSelector.value = savedTheme;
+            applyTheme(savedTheme);
+        }
+        
         updateAnalysisDurationLabel();
         updateAnalysisModeLabels();
     }
@@ -1428,6 +1436,12 @@ document.addEventListener('DOMContentLoaded', () => {
         currentBackupData.display_currency_symbol = displayCurrencySymbolInput.value.trim() || "$";
         currentBackupData.use_instant_expenses = instantExpenseToggle ? instantExpenseToggle.checked : false;
         // currentBackupData.usd_clp_rate = parseFloat(usdClpRateInput.value) || null; // No longer stored
+        
+        // Guardar tema seleccionado
+        if (themeSelector) {
+            currentBackupData.theme = themeSelector.value;
+            applyTheme(themeSelector.value);
+        }
 
         updateAnalysisDurationLabel();
         alert("Ajustes aplicados. El flujo de caja y el gráfico se recalcularán.");
@@ -1466,6 +1480,33 @@ document.addEventListener('DOMContentLoaded', () => {
             a.remove();
             URL.revokeObjectURL(url);
         });
+    }
+
+    // Theme selector
+    const themeSelector = document.getElementById('theme-selector');
+    if (themeSelector) {
+        themeSelector.addEventListener('change', (e) => {
+            const selectedTheme = e.target.value;
+            applyTheme(selectedTheme);
+            if (currentBackupData) {
+                currentBackupData.theme = selectedTheme;
+            }
+        });
+    }
+
+    // Función para aplicar tema
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        // Actualizar colores de gráficos si existen
+        if (cashflowChartInstance) {
+            const isDark = theme === 'dark';
+            cashflowChartInstance.options.scales.x.grid.color = isDark ? '#404040' : '#e5e7eb';
+            cashflowChartInstance.options.scales.y.grid.color = isDark ? '#404040' : '#e5e7eb';
+            cashflowChartInstance.options.scales.x.ticks.color = isDark ? '#d1d5db' : '#374151';
+            cashflowChartInstance.options.scales.y.ticks.color = isDark ? '#d1d5db' : '#374151';
+            cashflowChartInstance.update();
+        }
     }
 
     if (importJsonButton && importJsonInput) {
@@ -2568,8 +2609,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     default:
                         value = (def.category && expenses_by_cat_p[i]) ? -(expenses_by_cat_p[i][def.category] || 0) : 0;
-                        // Asignar color rotativo a categorías para variedad visual
-                        colorClass = colorCycle[colorIdx % colorCycle.length];
+                        // Para categorías individuales, mantener texto neutro
+                        colorClass = '';
                 }
                 tdValue.textContent = formatCurrencyJS(value, symbol);
                 tdValue.dataset.periodicity = periodicity;
@@ -2579,7 +2620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (colorClass) tdValue.classList.add(colorClass);
                 if (def.isBold) tdValue.classList.add('bold');
             }
-            if (def.category) colorIdx++; // avanzar color entre categorías
+            // No avanzar colorIdx para categorías individuales
         });
 
         highlightCurrentPeriodColumn(periodicity, tableHeadEl, tableBodyEl, periodDates);
