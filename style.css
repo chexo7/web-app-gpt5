@@ -1,0 +1,1349 @@
+/* Variables globales */
+:root {
+  --primary-color: #007aff;
+  --primary-hover: #0060d5;
+  --accent-color: #34c759;
+  --accent-hover: #28a745;
+  --danger-color: #ff3b30;
+  --danger-hover: #e33228;
+  --text-color: #1c1c1e;
+  --light-text: #6e6e73;
+  --background: #f5f5f7;
+  --card-bg: #ffffff;
+  --border-color: #d2d2d7;
+  --header-bg: #f0f0f5;
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+  --radius: 12px;
+  --alt-row-bg: #f9f9fa;
+  --row-hover-bg: #e9e9ec;
+  --body-header-row-bg: #f1f1f4;
+  --text-green: #34c759;
+  --text-red: #ff3b30;
+  --text-orange: #ff9500;
+  --disabled-bg: #f0f0f0;
+}
+
+/* Reseteo y estilos base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 10px;
+  background: var(--background);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1300px;
+  margin: 20px auto;
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Encabezados */
+h1, h2, h3, h4 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin-top: 1.2rem;
+  border-left: 3px solid var(--primary-color);
+  padding-left: 10px;
+}
+h3 {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-bottom: 0.8rem;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+h4 {
+    font-size: 1rem;
+    color: var(--light-text);
+    margin-top: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+
+/* Contenedores de autenticación y datos */
+#auth-container, #data-selection-container, #main-content-container {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Formularios e inputs generales */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  background-color: #fdfdff;
+}
+
+input:disabled,
+select:disabled {
+  background-color: var(--disabled-bg);
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.15);
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px; /* Default margin */
+}
+/* Specific margin for reimbursement checkbox container to group it visually */
+#income-form .checkbox-container:has(#income-is-reimbursement) {
+    margin-top: 15px; /* Add some space above the reimbursement checkbox */
+    margin-bottom: 5px; /* Reduce space below it if category selector follows */
+}
+#income-reimbursement-category-container {
+    margin-bottom: 12px; /* Standard margin below the category selector */
+}
+
+
+.checkbox-container input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+    margin-bottom: 0;
+}
+.checkbox-container label {
+    margin-bottom: 0;
+    font-weight: normal;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+
+/* Botones */
+button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-right: 8px;
+  margin-bottom: 5px;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+button:last-child {
+    margin-right: 0;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
+}
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+button.danger {
+    background-color: var(--danger-color);
+}
+button.danger:hover {
+    background-color: var(--danger-hover);
+}
+button.accent {
+    background-color: var(--accent-color);
+}
+button.accent:hover {
+    background-color: var(--accent-hover);
+}
+button.small-button {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+/* NUEVO: Estilo para botón grande */
+button.button-large {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+
+#logout-button { background-color: var(--danger-color); }
+#logout-button:hover { background-color: var(--danger-hover); }
+
+
+/* Estado de autenticación */
+#auth-status {
+  margin-top: 12px;
+  font-style: italic;
+  color: var(--light-text);
+  background-color: rgba(0, 0, 0, 0.02);
+  padding: 8px;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+/* Estructura para cargador de versiones */
+.version-loader {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+}
+
+.version-loader #load-latest-version-button {
+    order: 1;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.version-selector-group {
+    order: 2;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.version-selector-group select {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.version-selector-group button {
+    flex-shrink: 0;
+    margin-bottom: 0;
+    padding: 10px 15px;
+}
+
+
+/* --- Estructura para Formularios y Tablas en Pestañas --- */
+.form-and-table-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 15px;
+    flex-direction: column !important; /* Forzar columna siempre */
+}
+.form-container {
+    flex: 1;
+    min-width: 300px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: #fdfdff;
+}
+.table-container-dynamic {
+    flex: 2;
+    min-width: 400px;
+    display: flex;
+    flex-direction: column;
+}
+.dynamic-table-scroll {
+    flex-grow: 1;
+    overflow: auto;
+    max-height: 500px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+}
+
+/* Tablas dinámicas (Ingresos/Gastos/Presupuestos) */
+#incomes-table-view, #expenses-table-view, #budgets-table-view, #payments-table-view, #budget-summary-table {
+    width: 100%;
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.85rem;
+}
+
+/* Ajustes específicos para la tabla de gastos */
+#expenses-table-view {
+    table-layout: fixed;
+    min-width: unset;
+}
+
+#expenses-table-view th,
+#expenses-table-view td {
+    width: calc(100% / 12);
+}
+
+/* Nombre y Acciones ocupan el doble de espacio */
+#expenses-table-view th:nth-child(1),
+#expenses-table-view th:nth-child(10),
+#expenses-table-view td:nth-child(1),
+#expenses-table-view td:nth-child(10) {
+    width: calc(100% / 12 * 2);
+}
+
+#incomes-table-view th, #incomes-table-view td,
+#expenses-table-view th, #expenses-table-view td,
+#budgets-table-view th, #budgets-table-view td,
+#payments-table-view th, #payments-table-view td,
+#budget-summary-table th, #budget-summary-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    background-color: var(--card-bg);
+}
+
+/* Cabeceras de tabla */
+#incomes-table-view thead th,
+#expenses-table-view thead th,
+#budgets-table-view thead th,
+#payments-table-view thead th,
+#budget-summary-table thead th {
+    background-color: var(--header-bg);
+    color: var(--primary-color);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Estilo Hover para filas */
+#incomes-table-view tbody tr:hover td,
+#expenses-table-view tbody tr:hover td,
+#budgets-table-view tbody tr:hover td,
+#payments-table-view tbody tr:hover td,
+#budget-summary-table tbody tr:hover td {
+    background-color: var(--row-hover-bg);
+}
+
+#incomes-table-view td button, #expenses-table-view td button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    margin-right: 5px;
+}
+
+/* Ajuste de ancho y scroll para columna Nombre en Gastos */
+#expenses-table-view td.expense-name-cell {
+    /* allow width to adapt to the widest value */
+}
+#expenses-table-view td.expense-name-cell .name-scroll {
+    display: block;
+    overflow-x: auto;
+}
+/* Estilo para el icono de reembolso y la celda */
+.reimbursement-icon {
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-left: 5px;
+    cursor: help; /* Indica que hay un tooltip */
+}
+td.reimbursement-income {
+    color: var(--accent-color); /* Color verde para el texto de reembolso */
+    font-style: italic;
+}
+
+
+/* Contenedor de flujo de caja */
+#cashflow-container,
+#cashflow-mensual-container,
+#cashflow-semanal-container { margin-top: 20px; padding: 0; }
+#cashflow-title,
+#cashflow-mensual-title,
+#cashflow-semanal-title { text-align: center; margin-bottom: 15px; color: var(--text-color); font-size: 1.6rem; }
+
+/* Tabla responsive (Flujo de Caja) */
+.table-responsive {
+  overflow: auto;
+  width: 100%;
+  margin-top: 15px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+#cashflow-table,
+#cashflow-mensual-table,
+#cashflow-semanal-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.76rem;
+}
+#cashflow-table th, #cashflow-table td,
+#cashflow-mensual-table th, #cashflow-mensual-table td,
+#cashflow-semanal-table th, #cashflow-semanal-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+  background-color: var(--card-bg);
+}
+#cashflow-table thead th,
+#cashflow-mensual-table thead th,
+#cashflow-semanal-table thead th {
+  background-color: var(--header-bg);
+  color: var(--primary-color);
+  font-weight: 600;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+#cashflow-table th:first-child,
+#cashflow-table td:first-child,
+#cashflow-mensual-table th:first-child,
+#cashflow-mensual-table td:first-child,
+#cashflow-semanal-table th:first-child,
+#cashflow-semanal-table td:first-child {
+  position: sticky;
+  left: 0;
+}
+#cashflow-table thead th:first-child,
+#cashflow-mensual-table thead th:first-child,
+#cashflow-semanal-table thead th:first-child {
+  text-align: left;
+  z-index: 11;
+  background-color: var(--header-bg);
+}
+#cashflow-table tbody td:first-child,
+#cashflow-mensual-table tbody td:first-child,
+#cashflow-semanal-table tbody td:first-child {
+  font-weight: 500;
+  z-index: 9;
+  background-color: var(--card-bg);
+}
+
+/* Estilos para filas especiales en Flujo de Caja */
+#cashflow-table tbody tr.bg-alt-row td,
+#cashflow-table tbody tr.bg-alt-row td:first-child,
+#cashflow-mensual-table tbody tr.bg-alt-row td,
+#cashflow-mensual-table tbody tr.bg-alt-row td:first-child,
+#cashflow-semanal-table tbody tr.bg-alt-row td,
+#cashflow-semanal-table tbody tr.bg-alt-row td:first-child {
+  background-color: var(--alt-row-bg) !important;
+}
+#cashflow-table tbody tr.bg-header td,
+#cashflow-table tbody tr.bg-header td:first-child,
+#cashflow-mensual-table tbody tr.bg-header td,
+#cashflow-mensual-table tbody tr.bg-header td:first-child,
+#cashflow-semanal-table tbody tr.bg-header td,
+#cashflow-semanal-table tbody tr.bg-header td:first-child {
+  background-color: var(--body-header-row-bg) !important;
+}
+#cashflow-table tbody tr:not(.bg-header):hover td,
+#cashflow-table tbody tr:not(.bg-header):hover td:first-child,
+#cashflow-mensual-table tbody tr:not(.bg-header):hover td,
+#cashflow-mensual-table tbody tr:not(.bg-header):hover td:first-child,
+#cashflow-semanal-table tbody tr:not(.bg-header):hover td,
+#cashflow-semanal-table tbody tr:not(.bg-header):hover td:first-child {
+  background-color: var(--row-hover-bg) !important;
+}
+
+#cashflow-table td:not(:first-child),
+#cashflow-mensual-table td:not(:first-child),
+#cashflow-semanal-table td:not(:first-child) {
+  text-align: right;
+  font-family: 'Consolas', monospace;
+}
+.bold { font-weight: 700 !important; }
+.text-red { color: var(--text-red) !important; }
+.text-blue { color: var(--primary-color) !important; }
+.text-green { color: var(--text-green) !important; }
+.text-orange { color: var(--text-orange) !important; }
+.small-text { font-size: 0.8em; color: var(--light-text); }
+
+/* Column highlight for el período actual */
+#cashflow-mensual-table th.current-period,
+#cashflow-mensual-table td.current-period,
+#cashflow-semanal-table th.current-period,
+#cashflow-semanal-table td.current-period {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 122, 255, 0.10) 0,
+    rgba(0, 122, 255, 0.10) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+
+/* Mensaje de carga */
+#loading-message {
+  text-align: center;
+  font-style: italic;
+  margin: 15px 0;
+  color: var(--light-text);
+  background-color: rgba(0, 122, 255, 0.05);
+  padding: 8px;
+  border-radius: var(--radius);
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+/* Tabs Styling */
+.tabs-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--border-color);
+}
+.tab-button {
+  padding: 10px 18px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--light-text);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.3s ease, border-bottom-color 0.3s ease;
+  white-space: nowrap;
+}
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+.tab-button:hover:not(.active) { color: var(--primary-color); }
+.tab-content { display: none; padding-top: 10px; }
+.tab-content.active { display: block; animation: fadeIn 0.5s ease-out; }
+
+/* Subtabs Styling */
+.subtabs-container {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 10px;
+}
+.subtab-button {
+  padding: 6px 12px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--light-text);
+  border-bottom: 3px solid transparent;
+  transition: color 0.3s ease, border-bottom-color 0.3s ease;
+}
+.subtab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+.subtab-button:hover:not(.active) { color: var(--primary-color); }
+
+.save-changes-container {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+#save-changes-button {
+    padding: 12px 25px;
+    font-size: 1.05rem;
+}
+
+/* Estilos específicos para Pestaña Ajustes */
+.settings-form-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+#credit-card-settings-container {
+    max-width: 600px;
+    margin: 20px auto;
+}
+#credit-card-example {
+    margin-top: -5px;
+    margin-bottom: 10px;
+    color: var(--light-text);
+}
+#credit-cards-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+#credit-cards-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+#credit-cards-list li:last-child {
+    border-bottom: none;
+}
+#settings-form label {
+    margin-top: 10px;
+}
+/* Ajuste para la etiqueta informativa de la tasa de cambio */
+.informative-rate {
+    margin-top: 15px; /* Más espacio arriba */
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #f0f4f8; /* Un fondo sutil */
+    border-left: 3px solid var(--primary-color);
+    font-size: 0.9em;
+    border-radius: 4px;
+}
+.loading-dots::after {
+    content: ' .';
+    animation: dots 1s steps(5, end) infinite;
+}
+@keyframes dots {
+    0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
+    40% { color: var(--light-text); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
+    60% { text-shadow: .25em 0 0 var(--light-text), .5em 0 0 rgba(0,0,0,0); }
+    80%, 100% { text-shadow: .25em 0 0 var(--light-text), .5em 0 0 var(--light-text); }
+}
+
+
+/* Estilos para Pestaña Presupuestos */
+#budget-summary-table-container {
+    margin-top: 20px;
+}
+
+/* Estilos para Pestaña Registro Pagos */
+.payments-period-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.payments-period-selector select, .payments-period-selector button {
+    padding: 8px 10px;
+    margin-bottom: 0;
+}
+
+/* Estilos para Selección de Mes en Presupuestos */
+.budget-period-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+.budget-period-selector select, .budget-period-selector button {
+    padding: 8px 10px;
+    margin-bottom: 0;
+}
+
+/* Selector de período para gráficos adicionales */
+.chart-period-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.chart-period-selector input,
+.chart-period-selector button {
+    padding: 6px 8px;
+}
+
+.multi-pie-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.multi-pie-container .chart-container {
+    flex: 1 1 250px;
+    max-width: 300px;
+    height: 40vh;
+    margin: 10px;
+}
+
+.shared-legend {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.shared-legend ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.shared-legend li {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    margin-right: 4px;
+    border-radius: 2px;
+}
+
+/* Estilos para Pestaña Gráfico */
+.chart-container {
+    width: 100%;
+    max-width: 95%; /* Changed from 800px */
+    height: 60vh;   /* Changed from 400px */
+    margin: 20px auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 10px;
+}
+
+.chart-container canvas {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#cashflow-chart {
+    width: 100%;
+    max-width: none;
+}
+
+.mobile-chart-range {
+    display: none;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+@media (pointer: coarse) {
+    #cashflow-chart {
+        touch-action: none;
+    }
+    .mobile-chart-range {
+        display: flex;
+    }
+}
+.centered-text {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--light-text);
+}
+
+
+/* Estilos para Pestaña Baby Steps */
+.baby-steps-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+.baby-step {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 15px;
+    background-color: #fdfdff;
+}
+.baby-step h3 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-top: 0;
+}
+.baby-step h4 {
+    font-size: 0.95rem;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+.baby-step p {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+.baby-step ul {
+    list-style: none;
+    padding-left: 0;
+}
+.baby-step li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+.baby-step li input[type="checkbox"] {
+    margin-right: 10px;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+.baby-step li label {
+    font-weight: normal;
+    color: var(--text-color);
+     margin-bottom: 0;
+}
+
+
+/* Estilos para Pestaña Recordatorios */
+.reminders-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.reminders-columns {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.reminders-column {
+    flex: 1;
+    min-width: 250px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 15px;
+    background-color: #fdfdff;
+}
+.reminders-column h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+.reminders-column ul {
+    list-style: none;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.reminders-column li {
+    padding: 8px 5px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+.reminders-column li:last-child {
+    border-bottom: none;
+}
+.reminders-column li.completed {
+    text-decoration: line-through;
+    color: var(--light-text);
+}
+.reminder-actions button {
+    margin-left: 5px;
+}
+
+.category-input-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+.category-input-group select {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+.category-input-group button {
+    flex-shrink: 0;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    min-width: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+/* NUEVO: Estilos para Pestaña Log */
+.log-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 15px;
+    background-color: #fdfdff;
+}
+
+#change-log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.log-entry {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: var(--card-bg);
+    padding: 10px;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow);
+}
+
+.log-entry-empty {
+    color: var(--light-text);
+    font-style: italic;
+}
+
+.log-entry-header {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.log-entry summary::-webkit-details-marker {
+    display: none;
+}
+
+.log-timestamp {
+    font-weight: 500;
+    color: var(--light-text); 
+    margin-right: 0; 
+    white-space: nowrap; 
+}
+
+.log-user { 
+    margin-left: 0px; 
+    font-weight: 600; 
+    color: var(--primary-color);
+    padding: 2px 6px; 
+    background-color: #eef3f8; 
+    border-radius: 4px; 
+    white-space: nowrap;
+}
+
+.log-message {
+    color: var(--text-color);
+    flex-grow: 1; 
+}
+
+.log-details-list {
+    list-style-type: disc; 
+    padding-left: 25px; 
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: var(--light-text);
+}
+.log-details-list li {
+    margin-bottom: 3px;
+}
+
+.log-detail-added {
+    color: var(--text-green);
+}
+
+.log-detail-modified {
+    color: var(--text-orange);
+}
+
+.log-detail-deleted {
+    color: var(--text-red);
+}
+
+
+/* --- AJUSTES PARA ESCRITORIO --- */
+@media (min-width: 769px) {
+  body {
+    padding: 20px;
+  }
+  .container {
+    padding: 25px;
+  }
+  .form-and-table-layout {
+      gap: 20px;
+  }
+  .form-container {
+      flex: 1 1 380px;
+  }
+  .table-container-dynamic {
+      flex: 2 1 500px;
+  }
+  .reminders-columns {
+      flex-wrap: nowrap;
+  }
+  .category-input-group {
+    gap: 6px;
+  }
+  .category-input-group select {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-bottom: 0;
+    height: 38px;
+    font-size: 1rem;
+  }
+  .category-input-group button {
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    min-width: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+  }
+  .version-loader {
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+  }
+  .version-loader #load-latest-version-button {
+      width: auto;
+      flex-basis: calc(66.66% - 10px);
+      margin-bottom: 0;
+  }
+  .version-selector-group {
+      flex-basis: calc(33.33% - 10px);
+  }
+}
+
+
+/* Ajustes para Móvil */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 10px;
+    margin: 5px auto;
+  }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.2rem; }
+  #auth-container, #data-selection-container, #main-content-container {
+    padding: 10px;
+  }
+  button, input[type="submit"], input[type="button"] {
+    width: 100%;
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+  .tabs-container {
+    overflow-x: auto;
+    justify-content: flex-start;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+  .tab-button {
+    white-space: nowrap;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+  .subtab-button {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+
+  .form-and-table-layout {
+      flex-direction: column;
+  }
+  .form-container, .table-container-dynamic {
+      flex-basis: auto !important;
+      width: 100%;
+      min-width: unset;
+  }
+  .dynamic-table-scroll {
+      max-height: 350px;
+  }
+  .payments-period-selector {
+      flex-wrap: wrap;
+      justify-content: space-around;
+  }
+  .payments-period-selector select, .payments-period-selector button {
+      flex-basis: 45%;
+      margin-bottom: 8px;
+  }
+  .payments-period-selector button {
+      flex-basis: auto;
+  }
+  .budget-period-selector {
+      flex-wrap: wrap;
+      justify-content: space-around;
+  }
+  .budget-period-selector select, .budget-period-selector button {
+      flex-basis: 45%;
+      margin-bottom: 8px;
+  }
+  .budget-period-selector button {
+      flex-basis: auto;
+  }
+  .reminders-columns {
+      flex-direction: column;
+  }
+  .version-loader {
+      flex-direction: column;
+      gap: 10px;
+  }
+  .version-loader #load-latest-version-button,
+  .version-selector-group {
+      width: 100%;
+  }
+  .version-selector-group {
+      flex-direction: column;
+      gap: 10px;
+  }
+  .version-selector-group select,
+  .version-selector-group button {
+      width: 100%;
+  }
+  .log-entry-header {
+      flex-wrap: wrap; 
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#login-form, #logout-area { width: 100%; }
+
+/* Estilos del formulario de login */
+#login-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fdfdff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+#login-form input {
+  margin-bottom: 12px;
+}
+
+.login-intro {
+  margin-bottom: 15px;
+  color: var(--light-text);
+}
+.error-message {
+  color: var(--danger-color);
+  margin-top: 0.5rem;
+}
+
+/* Added Styles for Baby Steps Interactivity */
+.baby-step h3.baby-step-title {
+    cursor: pointer;
+    position: relative;
+    padding-right: 30px; /* Space for the indicator */
+    padding-top: 10px;
+    padding-bottom: 10px;
+    transition: background-color 0.2s ease-in-out;
+    border-radius: var(--radius);
+    margin-bottom: 0; /* Remove default h3 margin-bottom */
+    /* Retains existing .baby-step h3 styles like font-size, color */
+    /* Ensures border-bottom from h3 general style is not shown unless not expanded */
+    border-bottom: 1px solid var(--border-color); 
+}
+
+.baby-step h3.baby-step-title.expanded {
+    border-bottom-color: transparent; /* Hide bottom border when expanded as details will have a top border */
+}
+
+
+.baby-step h3.baby-step-title:hover {
+    background-color: var(--row-hover-bg); /* Consistent hover */
+}
+
+.baby-step h3.baby-step-title::after {
+    content: '+';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.75rem;
+    font-weight: bold;
+    line-height: 1;
+    color: var(--primary-color);
+    transition: transform 0.3s ease-in-out;
+}
+
+.baby-step h3.baby-step-title.expanded::after {
+    content: '−';
+}
+
+.baby-step-details {
+    max-height: 0; /* Collapsed by default, JS sets to scrollHeight */
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out, padding-top 0.4s ease-in-out, margin-top 0.4s ease-in-out, border-top-width 0.4s ease-in-out;
+    /* padding-top and margin-top are set via JS */
+    border-top: 0px solid transparent; /* Start with 0px width, transition to 1px */
+}
+
+.baby-step h3.baby-step-title.expanded + .baby-step-details {
+    border-top-width: 1px; /* Set border-top width when expanded */
+    border-top-color: var(--border-color); /* Make border visible */
+    /* JS handles paddingTop and marginTop for smooth animation based on content height */
+}
+
+/* End of Added Styles for Baby Steps Interactivity */
+
+/* Modal for chart transactions */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+#expense-drop-zone {
+    border: 2px dashed var(--border-color);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+#expense-drop-zone.dragover {
+    background-color: var(--alt-row-bg);
+}
+#column-mapping {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+#bank-profile {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+#column-mapping label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+.import-preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+.import-preview-table th,
+.import-preview-table td {
+    border: 1px solid var(--border-color);
+    padding: 4px;
+}
+.duplicate-row {
+    background-color: var(--alt-row-bg);
+}
+#import-expenses-modal .modal-content {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+}
+
+.desktop-only { display: none; }
+@media (min-width: 769px) {
+    .desktop-only { display: inline-block; }
+}
+
+/* Popup de desglose de celda */
+.breakdown-popup {
+    position: absolute;
+    z-index: 2000;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    padding: 8px;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    display: none;
+    white-space: nowrap;
+    width: max-content;
+    max-width: none;
+}
+.breakdown-popup ul {
+    list-style: none;
+    margin: 0 0 5px 0;
+    padding: 0;
+}
+.breakdown-popup li { margin: 2px 0; }
+

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor y Editor de Flujo de Caja</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestor Financiero Web</h1>
+
+        <div id="auth-container">
+            <div id="login-form">
+                <h2>Iniciar Sesión</h2>
+                <p class="login-intro">Ingresa tus credenciales para continuar.</p>
+                <input type="email" id="email" placeholder="Correo electrónico">
+                <input type="password" id="password" placeholder="Contraseña">
+                <button id="login-button">Ingresar</button>
+                <p id="login-error" class="error-message" style="display:none;"></p>
+            </div>
+            <div id="logout-area" style="display:none;">
+                <p id="auth-status"></p>
+                <button id="logout-button">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div id="data-selection-container" style="display:none;">
+            <h2>Seleccionar Versión de Datos</h2>
+            <div class="version-loader">
+                <button id="load-latest-version-button" class="button-large accent">Cargar Última Versión</button>
+                <div class="version-selector-group">
+                    <select id="backup-selector">
+                        <option value="">-- Selecciona una versión --</option>
+                    </select>
+                    <button id="load-backup-button">Cargar Versión Seleccionada</button>
+                </div>
+            </div>
+            <p id="loading-message" style="display:none;"></p>
+        </div>
+
+        <div id="main-content-container" style="display:none;">
+            <div class="tabs-container">
+                <button class="tab-button" data-tab="gastos">Gastos</button>
+                <button class="tab-button" data-tab="ingresos">Ingresos</button>
+                <button class="tab-button" data-tab="flujo-caja">Flujo de Caja</button>
+                <button class="tab-button" data-tab="grafico">Gráfico</button>
+                <button class="tab-button" data-tab="registro-pagos">Registro Pagos</button>
+                <button class="tab-button" data-tab="recordatorios">Recordatorios</button>
+                <button class="tab-button" data-tab="presupuestos">Presupuestos</button>
+                <button class="tab-button" data-tab="baby-steps">Baby Steps</button>
+                <button class="tab-button" data-tab="ajustes">Ajustes</button>
+                <button class="tab-button" data-tab="log">Log</button> </div>
+
+            <div id="ajustes" class="tab-content">
+                <h2>Ajustes del Análisis</h2>
+                <div class="form-container settings-form-container"> <form id="settings-form">
+                        <label for="analysis-duration-input" id="analysis-duration-label">Duración (Meses):</label>
+                        <input type="number" id="analysis-duration-input" value="12" min="1">
+
+                        <label for="analysis-start-date-input">Fecha Inicio Análisis:</label>
+                        <input type="date" id="analysis-start-date-input">
+
+                        <label for="analysis-initial-balance-input">Saldo Inicial:</label>
+                        <input type="number" id="analysis-initial-balance-input" step="any" value="0">
+
+                        <label for="display-currency-symbol-input">Símbolo Moneda:</label>
+                        <input type="text" id="display-currency-symbol-input" value="$" maxlength="5">
+
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="instant-expense-toggle">
+                            <label for="instant-expense-toggle">Modo Gastos Instantáneos</label>
+                        </div>
+                        
+                        <p id="usd-clp-info-label" class="small-text informative-rate">1 USD = $CLP (Obteniendo...)</p>
+
+                        <button type="button" id="apply-settings-button" class="accent">Aplicar Ajustes y Recalcular</button>
+                        <button type="button" id="print-summary-button" class="accent">Imprimir Resumen</button>
+                         <button type="button" id="export-json-button">Exportar JSON</button>
+                         <button type="button" id="import-json-button">Importar JSON</button>
+                         <input type="file" id="import-json-input" accept="application/json" style="display:none;" />
+                    </form>
+                </div>
+                <div class="form-container settings-form-container" id="credit-card-settings-container">
+                    <h3>Tarjetas de Crédito</h3>
+                    <form id="credit-card-form">
+                        <label for="credit-card-name">Nombre:</label>
+                        <input type="text" id="credit-card-name" placeholder="Visa ****" required>
+                        <label for="credit-card-cutoff">Día de Corte:</label>
+                        <input type="number" id="credit-card-cutoff" min="1" max="31" required>
+                        <label for="credit-card-payment-day">Día de Pago:</label>
+                        <input type="number" id="credit-card-payment-day" min="1" max="31" required>
+                        <p id="credit-card-example" class="small-text"></p>
+                        <button type="submit" id="add-credit-card-button">Agregar Tarjeta</button>
+                        <button type="button" id="cancel-edit-credit-card-button" style="display:none;" class="danger">Cancelar Edición</button>
+                    </form>
+                    <ul id="credit-cards-list"></ul>
+                </div>
+            </div>
+
+            <div id="ingresos" class="tab-content">
+                <h2>Gestión de Ingresos</h2>
+                <div class="form-and-table-layout">
+                    <div class="form-container">
+                        <h3>Registrar Nuevo Ingreso</h3>
+                        <form id="income-form">
+                            <label for="income-name">Nombre:</label>
+                            <input type="text" id="income-name" required>
+
+                            <label for="income-amount">Monto Neto:</label>
+                            <input type="number" id="income-amount" step="any" required>
+
+                            <label for="income-frequency">Frecuencia:</label>
+                            <select id="income-frequency">
+                                <option value="Mensual">Mensual</option>
+                                <option value="Semanal">Semanal</option>
+                                <option value="Bi-semanal">Bi-semanal</option>
+                                <option value="Único">Único</option>
+                            </select>
+
+                            <label for="income-start-date">Fecha Inicio / Única:</label>
+                            <input type="date" id="income-start-date" required>
+
+                            <label for="income-end-date">Fecha Fin (si aplica):</label>
+                            <input type="date" id="income-end-date">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="income-ongoing" checked>
+                                <label for="income-ongoing">Ingreso recurrente sin fin</label>
+                            </div>
+                            
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="income-is-reimbursement">
+                                <label for="income-is-reimbursement">Es un reembolso</label>
+                            </div>
+                            <div id="income-reimbursement-category-container" style="display:none;">
+                                <label for="income-reimbursement-category">Categoría de Gasto a Reembolsar:</label>
+                                <select id="income-reimbursement-category">
+                                    <option value="">-- Selecciona Categoría de Gasto --</option>
+                                </select>
+                            </div>
+                            <button type="submit" id="add-income-button">Agregar Ingreso</button>
+                            <button type="button" id="cancel-edit-income-button" style="display:none;" class="danger">Cancelar Edición</button>
+                        </form>
+                    </div>
+                    <div class="table-container-dynamic">
+                        <h3>Ingresos Registrados</h3>
+                        <label for="search-income-input">Buscar Ingreso:</label>
+                        <input type="text" id="search-income-input" placeholder="Escribe para filtrar...">
+                        <div class="table-responsive dynamic-table-scroll">
+                            <table id="incomes-table-view">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Monto</th>
+                                        <th>Frecuencia</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                        <th>Tipo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="gastos" class="tab-content">
+                <h2>Gestión de Gastos</h2>
+                <div class="form-and-table-layout">
+                    <div class="form-container">
+                        <h3>Registrar Nuevo Gasto</h3>
+                        <form id="expense-form">
+                            <label for="expense-name">Nombre:</label>
+                            <input type="text" id="expense-name" required>
+
+                            <label for="expense-amount">Monto:</label>
+                            <input type="number" id="expense-amount" step="any" required>
+
+                            <label for="expense-category">Categoría:</label>
+                            <div class="category-input-group">
+                                <select id="expense-category" required></select>
+                                <button type="button" id="add-category-button" class="small-button" title="Nueva Categoría">+</button>
+                                <button type="button" id="remove-category-button" class="small-button danger" title="Eliminar Categoría Seleccionada">-</button>
+                            </div>
+                            
+                            <label for="expense-frequency">Frecuencia:</label>
+                            <select id="expense-frequency">
+                                <option value="Mensual">Mensual</option>
+                                <option value="Semanal">Semanal</option>
+                                <option value="Bi-semanal">Bi-semanal</option>
+                                <option value="Único" selected>Único</option>
+                            </select>
+
+                            <label for="expense-movement-date">Fecha Movimiento:</label>
+                            <input type="date" id="expense-movement-date" required>
+
+                            <div id="expense-payment-date-container" style="display:none;">
+                                <label for="expense-start-date">Fecha de Gasto/Pago:</label>
+                                <input type="date" id="expense-start-date" disabled required>
+                            </div>
+
+                            <label for="expense-end-date">Fecha Fin (si aplica):</label>
+                            <input type="date" id="expense-end-date">
+                             <div class="checkbox-container">
+                                <input type="checkbox" id="expense-ongoing">
+                                <label for="expense-ongoing">Gasto recurrente sin fin</label>
+                            </div>
+
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="expense-is-real" checked>
+                                <label for="expense-is-real">Es un gasto real (ya ocurrido)</label>
+                            </div>
+
+                            <label for="expense-payment-method">Método de Pago:</label>
+                            <select id="expense-payment-method">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Credito" selected>Tarjeta de Crédito</option>
+                            </select>
+                            <div id="expense-credit-card-container" style="display:none;">
+                                <label for="expense-credit-card">Tarjeta:</label>
+                                <select id="expense-credit-card"></select>
+                            </div>
+                            <div id="expense-installments-container" style="display:none;">
+                                <label for="expense-installments">Cuotas:</label>
+                                <input type="number" id="expense-installments" min="1" value="1">
+                            </div>
+
+                            <button type="submit" id="add-expense-button">Agregar Gasto</button>
+                            <button type="button" id="cancel-edit-expense-button" style="display:none;" class="danger">Cancelar Edición</button>
+                        </form>
+                    </div>
+                    <div class="table-container-dynamic">
+                        <h3>Gastos Registrados</h3>
+                        <label for="search-expense-input">Buscar Gasto:</label>
+                        <input type="text" id="search-expense-input" placeholder="Escribe para filtrar...">
+                        <button type="button" class="open-import-expenses small-button accent desktop-only">Importar Gastos</button>
+                        <div class="table-responsive dynamic-table-scroll">
+                            <table id="expenses-table-view">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Monto</th>
+                                        <th>Categoría</th>
+                                        <th>Frecuencia</th>
+                                        <th>Movimiento</th>
+                                        <th>Gasto/Pago</th>
+                                        <th>Fin</th>
+                                        <th>Método</th>
+                                        <th>Real</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="presupuestos" class="tab-content">
+                <h2>Gestión de Presupuestos Mensuales</h2>
+                <div class="form-and-table-layout">
+                    <div class="form-container">
+                        <h3>Definir Presupuesto</h3>
+                        <form id="budget-form">
+                            <label for="budget-category-select">Categoría:</label>
+                            <select id="budget-category-select" required></select>
+
+                            <label for="budget-amount-input">Monto Presupuestado Mensual:</label>
+                            <input type="number" id="budget-amount-input" step="any" required placeholder="0">
+
+                            <button type="submit" id="save-budget-button">Guardar Presupuesto</button>
+                        </form>
+                    </div>
+                    <div class="table-container-dynamic">
+                        <h3>Presupuestos por Categoría</h3>
+                        <div class="table-responsive dynamic-table-scroll">
+                            <table id="budgets-table-view">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Tipo</th>
+                                        <th>Presupuesto Mensual</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
+                         <h3>Resumen Gasto vs Presupuesto (Mes Actual/Seleccionado)</h3>
+                        <div class="budget-period-selector">
+                            <button id="budget-prev-period-button" title="Mes Anterior">&lt;</button>
+                            <select id="budget-year-select"></select>
+                            <select id="budget-month-select"></select>
+                            <button id="budget-next-period-button" title="Mes Siguiente">&gt;</button>
+                        </div>
+                        <div class="table-responsive dynamic-table-scroll" id="budget-summary-table-container">
+                            <table id="budget-summary-table">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Presupuesto</th>
+                                        <th>Gasto Real</th>
+                                        <th>Diferencia</th>
+                                        <th>% Gastado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="registro-pagos" class="tab-content">
+                <div class="subtabs-container" id="payments-subtabs">
+                    <button class="subtab-button active" data-parent="payments" data-period="Mensual">Mensual</button>
+                    <button class="subtab-button" data-parent="payments" data-period="Semanal">Semanal</button>
+                </div>
+                <h2 id="payments-tab-title">Registro de Pagos Mensual</h2>
+                <div class="payments-period-selector">
+                    <button id="prev-period-button" title="Periodo Anterior">&lt;</button>
+                    <select id="payment-year-select"></select>
+                    <select id="payment-month-select" style="display:none;"></select>
+                    <select id="payment-week-select" style="display:none;"></select>
+                    <button id="next-period-button" title="Periodo Siguiente">&gt;</button>
+                </div>
+                <div class="table-responsive dynamic-table-scroll">
+                    <table id="payments-table-view">
+                        <thead>
+                            <tr>
+                                <th>Gasto</th>
+                                <th>Monto</th>
+                                <th>Categoría</th>
+                                <th>Tipo</th>
+                                <th>Real?</th>
+                                <th>Fecha</th>
+                                <th>Pagado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="flujo-caja" class="tab-content">
+                <div class="subtabs-container" id="cashflow-subtabs">
+                    <button class="subtab-button active" data-parent="cashflow" data-period="Mensual">Mensual</button>
+                    <button class="subtab-button" data-parent="cashflow" data-period="Semanal">Semanal</button>
+                </div>
+                <div id="cashflow-mensual-container">
+                    <h2 id="cashflow-mensual-title">Flujo de Caja - Mensual</h2>
+                    <div class="table-responsive">
+                        <table id="cashflow-mensual-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="cashflow-semanal-container" style="display:none;">
+                    <h2 id="cashflow-semanal-title">Flujo de Caja - Semanal</h2>
+                    <div class="table-responsive">
+                        <table id="cashflow-semanal-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="grafico" class="tab-content">
+                <div class="subtabs-container" id="chart-subtabs">
+                    <button class="subtab-button active" data-parent="chart" data-period="Mensual">Mensual</button>
+                    <button class="subtab-button" data-parent="chart" data-period="Semanal">Semanal</button>
+                </div>
+                <h2 id="grafico-title">Gráfico de Flujo de Caja</h2>
+                <div id="chart-controls" class="chart-period-selector" style="flex-wrap: wrap;">
+                    <label><input type="checkbox" id="toggle-end-balance" checked> Saldo Final</label>
+                    <label><input type="checkbox" id="toggle-incomes" checked> Ingresos</label>
+                    <label><input type="checkbox" id="toggle-expenses" checked> Gastos</label>
+                    <label><input type="checkbox" id="toggle-netflow"> Flujo Neto</label>
+                    <label><input type="checkbox" id="toggle-ma"> Media Móvil</label>
+                    <label>Ventana MA
+                        <input type="number" id="ma-window" min="2" max="12" value="3" style="width:70px;">
+                    </label>
+                    <button id="download-chart-png-button">Descargar PNG</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="cashflow-chart"></canvas>
+                </div>
+                <div id="mobile-chart-range" class="mobile-chart-range" style="display:none;">
+                    <label for="mobile-chart-start">Desde:</label>
+                    <input type="date" id="mobile-chart-start">
+                    <label for="mobile-chart-end">Hasta:</label>
+                    <input type="date" id="mobile-chart-end">
+                    <button id="apply-mobile-chart-range">Aplicar</button>
+                </div>
+                <p id="chart-message" class="centered-text">Doble clic en el gráfico para activar el zoom.</p>
+
+                <div id="pie-month-container">
+                    <h3>Distribución de Gastos por Categoría - Mensual</h3>
+                    <div class="chart-period-selector multi-input">
+                        <input type="month" id="pie-month-input-1">
+                        <input type="month" id="pie-month-input-2">
+                        <input type="month" id="pie-month-input-3">
+                    </div>
+                    <div class="multi-pie-container">
+                        <div class="chart-container">
+                            <canvas id="pie-chart-month-1"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pie-chart-month-2"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pie-chart-month-3"></canvas>
+                        </div>
+                    </div>
+                    <div id="pie-month-legend" class="shared-legend"></div>
+                </div>
+
+                <div id="pie-week-container" style="display:none;">
+                    <h3>Distribución de Gastos por Categoría - Semanal</h3>
+                    <div class="chart-period-selector multi-input">
+                        <input type="week" id="pie-week-input-1">
+                        <input type="week" id="pie-week-input-2">
+                        <input type="week" id="pie-week-input-3">
+                    </div>
+                    <div class="multi-pie-container">
+                        <div class="chart-container">
+                            <canvas id="pie-chart-week-1"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pie-chart-week-2"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pie-chart-week-3"></canvas>
+                        </div>
+                    </div>
+                    <div id="pie-week-legend" class="shared-legend"></div>
+                </div>
+            </div>
+
+            <div id="baby-steps" class="tab-content">
+                <h2>Baby Steps de Dave Ramsey</h2>
+                <div id="baby-steps-container" class="baby-steps-layout">
+                    </div>
+            </div>
+
+            <div id="recordatorios" class="tab-content">
+                <h2>Recordatorios y Tareas</h2>
+                <div class="reminders-layout">
+                    <div class="form-container">
+                        <h3>Nueva Tarea</h3>
+                        <form id="reminder-form">
+                            <input type="text" id="reminder-text-input" placeholder="Descripción de la tarea..." required>
+                            <button type="submit" id="add-reminder-button">Agregar Tarea</button>
+                        </form>
+                    </div>
+                    <div class="reminders-columns">
+                        <div class="reminders-column">
+                            <h3>Pendientes</h3>
+                            <ul id="pending-reminders-list"></ul>
+                        </div>
+                        <div class="reminders-column">
+                            <h3>Completadas</h3>
+                            <ul id="completed-reminders-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="log" class="tab-content">
+                <h2>Log de Cambios de Versión</h2>
+                <div class="log-container">
+                    <div id="change-log-list">
+                        </div>
+                </div>
+            </div>
+
+
+            <div class="save-changes-container">
+                 <button id="save-changes-button" class="accent">Guardar Nueva Versión</button>
+            </div>
+            <div id="chart-modal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span id="chart-modal-close" class="modal-close">&times;</span>
+                    <h3 id="chart-modal-title"></h3>
+                    <div class="table-responsive">
+                        <table id="chart-modal-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Monto</th>
+                                    <th>Categoría</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="import-expenses-modal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span id="import-expenses-modal-close" class="modal-close">&times;</span>
+                    <h3>Importar Gastos desde Excel</h3>
+                    <div id="expense-drop-zone">Arrastra el archivo .xlsx aquí o haz clic para seleccionar</div>
+                    <input type="file" id="expense-file-input" accept=".xlsx,.xls" style="display:none;">
+                    <div id="bank-profile" style="display:none;">
+                        <label>Perfil<select id="import-bank-profile">
+                            <option value="auto">Automático</option>
+                            <option value="falabella">Banco Falabella</option>
+                        </select></label>
+                    </div>
+                    <div id="column-mapping" style="display:none;">
+                        <label>Fecha<select id="map-date"></select></label>
+                        <label>Descripción<select id="map-description"></select></label>
+                        <label>Monto<select id="map-amount"></select></label>
+                    </div>
+                    <div id="import-table-container"></div>
+                    <button type="button" id="merge-expenses-button" class="accent">Unir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <div id="cashflow-breakdown-popup" class="breakdown-popup"></div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
