@@ -3971,8 +3971,8 @@ function getMondayOfWeek(year, week) {
         let offset = 0;
         let startY = margin.top;
         // Reduce font size to minimize table row height
-        doc.setFontSize(9);
-        doc.text(title, margin.left, startY - 10);
+        doc.setFontSize(10);
+        doc.text(title, margin.left, startY - 12);
         while (offset < otherCols.length) {
             const slice = otherCols.slice(offset, offset + colsPerPage);
             const pageHeaders = [firstCol, ...slice];
@@ -3992,10 +3992,13 @@ function getMondayOfWeek(year, week) {
                 body: pageRows,
                 startY,
                 theme: 'grid',
-                styles: { fontSize: 6, textColor: '#2d3436' },
+                styles: { fontSize: 7, textColor: '#2d3436', overflow: 'linebreak', cellPadding: 2 },
                 headStyles: { fillColor: '#f1f6fb', textColor: '#3867d6', fontStyle: 'bold' },
                 alternateRowStyles: { fillColor: '#f8f9fa' },
                 margin,
+                columnStyles: {
+                    0: { cellWidth: firstColWidth }
+                },
                 didParseCell: function (data) {
                     if (data.section === 'body') {
                         const rowCls = rowClasses[data.row.index] || '';
@@ -4009,6 +4012,17 @@ function getMondayOfWeek(year, week) {
                         const cls = pageHeaderClasses[data.column.index] || '';
                         if (cls.includes('current-period')) data.cell.styles.fillColor = '#eef3f8';
                     }
+                },
+                didDrawPage: function (data) {
+                    const pageNumber = data.pageNumber;
+                    const w = doc.internal.pageSize.getWidth();
+                    doc.setFontSize(9);
+                    doc.setTextColor('#6e6e73');
+                    const ts = new Date().toLocaleString('es-CL');
+                    doc.text('Gestor Financiero Web - Resumen', margin.left, 20);
+                    doc.text(ts, margin.left, 32);
+                    const pageStr = `Página ${pageNumber}`;
+                    doc.text(pageStr, w - margin.right - doc.getTextWidth(pageStr), 20);
                 },
                 willDrawCell: function (data) {
                     const cls = data.section === 'body'
@@ -4038,7 +4052,7 @@ function getMondayOfWeek(year, week) {
             if (offset < otherCols.length) {
                 doc.addPage('letter', 'landscape');
                 startY = margin.top;
-                doc.text(title, margin.left, startY - 10);
+                doc.text(title, margin.left, startY - 12);
             } else {
                 startY = doc.lastAutoTable.finalY + 10;
             }
@@ -4057,27 +4071,146 @@ function getMondayOfWeek(year, week) {
             alert('Plugin AutoTable no disponible.');
             return;
         }
-        const margin = { top: 40, left: 40, right: 40 };
+        const margin = { top: 56, left: 46, right: 46 };
+
+        // Cover page
+        const coverTitle = 'Resumen de Flujo de Caja';
+        const sub = [];
+        const user = firebase.auth().currentUser;
+        const userName = user && user.email ? mapEmailToName(user.email) : 'Usuario';
+        if (currentBackupData) {
+            sub.push(`Usuario: ${userName}`);
+            sub.push(`Inicio: ${getISODateString(new Date(currentBackupData.analysis_start_date || new Date()))}`);
+            sub.push(`Duración: ${currentBackupData.analysis_duration || 0} períodos (${currentBackupData.analysis_periodicity || 'Mensual'})`);
+            sub.push(`Saldo inicial: ${formatCurrencyJS(parseFloat(currentBackupData.analysis_initial_balance||0), currentBackupData.display_currency_symbol||'$')}`);
+            sub.push(`Moneda: ${currentBackupData.display_currency_symbol || '$'} | Modo instantáneo: ${currentBackupData.use_instant_expenses ? 'Sí' : 'No'}`);
+        }
+        const pageW = doc.internal.pageSize.getWidth();
+        doc.setFontSize(22);
+        doc.text(coverTitle, pageW/2, 150, { align: 'center' });
+        doc.setFontSize(12);
+        sub.forEach((line, idx) => doc.text(line, pageW/2, 190 + idx*18, { align: 'center' }));
+        // Footer/header for cover
+        doc.setFontSize(9);
+        doc.setTextColor('#6e6e73');
+        const tsCover = new Date().toLocaleString('es-CL');
+        doc.text('Gestor Financiero Web - Resumen', margin.left, 20);
+        doc.text(tsCover, margin.left, 32);
+        doc.text('Página 1', pageW - margin.right - doc.getTextWidth('Página 1'), 20);
+
+        // TOC placeholder
+        doc.addPage('letter', 'landscape');
+        const tocPage = doc.getCurrentPageInfo().pageNumber;
+        doc.setFontSize(16);
+        doc.text('Índice', margin.left, margin.top - 10);
+        doc.setFontSize(10);
+        doc.text('Se generará automáticamente al final…', margin.left, margin.top + 6);
+
+        const toc = [];
+
+        // Executive Summary
+        const addExecutiveSummary = () => {
+            doc.addPage('letter', 'landscape');
+            const startPage = doc.getCurrentPageInfo().pageNumber;
+            toc.push({ title: 'Resumen Ejecutivo', page: startPage });
+            doc.setFontSize(14);
+            doc.text('Resumen Ejecutivo', margin.left, margin.top - 12);
+            doc.setFontSize(10);
+            // KPIs
+            const symbol = (currentBackupData && currentBackupData.display_currency_symbol) || '$';
+            // Totales en el período mensual de análisis
+            let totalIncome = 0, totalFix = 0, totalVar = 0, minEnd = null, maxEnd = null, deficits = 0;
+            if (currentBackupData && currentBackupData.analysis_start_date) {
+                const start = new Date(currentBackupData.analysis_start_date);
+                const duration = parseInt(currentBackupData.analysis_duration || 0, 10);
+                let balance = parseFloat(currentBackupData.analysis_initial_balance || 0);
+                let d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+                for (let i = 0; i < duration; i++) {
+                    const rows = gatherPeriodTransactions(d, 'Mensual');
+                    const inc = rows.filter(r => r.type === 'Ingreso').reduce((a,b)=>a+b.amount, 0);
+                    const reimb = rows.filter(r => r.type === 'Reembolso').reduce((a,b)=>a+b.amount, 0);
+                    const exp = rows.filter(r => r.type === 'Gasto').reduce((a,b)=>a+b.amount, 0);
+                    const fixExp = rows.filter(r => r.type === 'Gasto' && currentBackupData.expense_categories[r.category]==='Fijo').reduce((a,b)=>a+b.amount,0);
+                    const varExp = exp - fixExp;
+                    const net = (inc) - exp; // los reembolsos ya están descontados en categorías en la tabla
+                    balance += net;
+                    totalIncome += inc;
+                    totalFix += fixExp;
+                    totalVar += varExp;
+                    if (minEnd===null || balance<minEnd) minEnd = balance;
+                    if (maxEnd===null || balance>maxEnd) maxEnd = balance;
+                    if (balance < 0) deficits++;
+                    d = addMonths(d, 1);
+                }
+            }
+            const kpiRows = [
+                ['Ingresos totales', formatCurrencyJS(totalIncome, symbol)],
+                ['Gastos fijos totales', formatCurrencyJS(totalFix, symbol)],
+                ['Gastos variables totales', formatCurrencyJS(totalVar, symbol)],
+                ['Flujo neto acumulado', formatCurrencyJS(totalIncome - (totalFix+totalVar), symbol)],
+                ['Saldo mínimo proyectado', formatCurrencyJS(minEnd||0, symbol)],
+                ['Saldo máximo proyectado', formatCurrencyJS(maxEnd||0, symbol)],
+                ['Períodos con saldo negativo', String(deficits)]
+            ];
+            doc.autoTable({
+                head: [['Métrica', 'Valor']],
+                body: kpiRows,
+                startY: margin.top,
+                theme: 'grid',
+                styles: { fontSize: 9 },
+                headStyles: { fillColor: '#f1f6fb', textColor: '#3867d6', fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: '#f8f9fa' },
+                margin,
+                didDrawPage: function (data) {
+                    const w = doc.internal.pageSize.getWidth();
+                    doc.setFontSize(9);
+                    doc.setTextColor('#6e6e73');
+                    const ts = new Date().toLocaleString('es-CL');
+                    doc.text('Gestor Financiero Web - Resumen', margin.left, 20);
+                    doc.text(ts, margin.left, 32);
+                    const pageStr = `Página ${data.pageNumber}`;
+                    doc.text(pageStr, w - margin.right - doc.getTextWidth(pageStr), 20);
+                }
+            });
+        };
+
+        addExecutiveSummary();
+
+        // Cashflow tables
         const mensualData = extractTableData(document.getElementById('cashflow-mensual-table'));
+        toc.push({ title: 'Flujo de Caja - Mensual', page: doc.getNumberOfPages()+1 });
         addTableSectionsToPdf(doc, 'Flujo de Caja - Mensual', mensualData, margin);
         doc.addPage('letter', 'landscape');
         const semanalData = extractTableData(document.getElementById('cashflow-semanal-table'));
+        toc.push({ title: 'Flujo de Caja - Semanal', page: doc.getNumberOfPages()+1 });
         addTableSectionsToPdf(doc, 'Flujo de Caja - Semanal', semanalData, margin);
 
-        // --- Ingresos y Gastos por Mes ---
+        // Ingresos y Gastos por Mes
         function addSimpleTable(title, headers, rows) {
             doc.addPage('letter', 'landscape');
-            doc.setFontSize(9);
-            doc.text(title, margin.left, margin.top - 10);
+            const startPage = doc.getCurrentPageInfo().pageNumber;
+            toc.push({ title, page: startPage });
+            doc.setFontSize(12);
+            doc.text(title, margin.left, margin.top - 12);
             doc.autoTable({
                 head: [headers],
                 body: rows,
                 startY: margin.top,
                 theme: 'grid',
-                styles: { fontSize: 7, textColor: '#2d3436' },
+                styles: { fontSize: 8, overflow: 'linebreak', cellPadding: 2 },
                 headStyles: { fillColor: '#f1f6fb', textColor: '#3867d6', fontStyle: 'bold' },
                 alternateRowStyles: { fillColor: '#f8f9fa' },
-                margin
+                margin,
+                didDrawPage: function (data) {
+                    const w = doc.internal.pageSize.getWidth();
+                    doc.setFontSize(9);
+                    doc.setTextColor('#6e6e73');
+                    const ts = new Date().toLocaleString('es-CL');
+                    doc.text('Gestor Financiero Web - Resumen', margin.left, 20);
+                    doc.text(ts, margin.left, 32);
+                    const pageStr = `Página ${data.pageNumber}`;
+                    doc.text(pageStr, w - margin.right - doc.getTextWidth(pageStr), 20);
+                }
             });
         }
 
@@ -4094,9 +4227,9 @@ function getMondayOfWeek(year, week) {
                 trs.forEach(t => {
                     const amt = formatCurrencyJS(t.amount, symbol);
                     if (t.type === 'Gasto') {
-                        const typ = currentBackupData.expense_categories[t.category] || 'Variable';
+                        const typ = (currentBackupData.expense_categories && currentBackupData.expense_categories[t.category]) || 'Variable';
                         expenseRows.push([monthLabel, t.name, amt, t.category || '', typ, t.date]);
-                    } else {
+                    } else if (t.type === 'Ingreso' || t.type === 'Reembolso') {
                         const typ = t.type === 'Reembolso' ? 'Reembolso' : 'Ingreso';
                         incomeRows.push([monthLabel, t.name, amt, typ, t.date]);
                     }
@@ -4111,6 +4244,26 @@ function getMondayOfWeek(year, week) {
             }
         }
 
+        // Fill TOC
+        doc.setPage(tocPage);
+        doc.setFontSize(12);
+        doc.text('Índice', margin.left, margin.top - 12);
+        doc.setFontSize(10);
+        let y = margin.top + 10;
+        toc.forEach(item => {
+            const title = item.title;
+            const pageStr = String(item.page);
+            const w = doc.internal.pageSize.getWidth();
+            doc.text(title, margin.left, y);
+            doc.text(pageStr, w - margin.right - doc.getTextWidth(pageStr), y);
+            y += 16;
+            if (y > doc.internal.pageSize.getHeight() - margin.top) {
+                doc.addPage('letter', 'landscape');
+                y = margin.top;
+            }
+        });
+
+        doc.setPage(doc.getNumberOfPages());
         doc.save('resumen_flujo_caja.pdf');
     }
 
