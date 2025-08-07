@@ -2527,6 +2527,10 @@ document.addEventListener('DOMContentLoaded', () => {
         cf_row_definitions.push({ key: 'NET_FLOW', label: 'Flujo Neto del Período', isBold: true });
         cf_row_definitions.push({ key: 'END_BALANCE', label: 'Saldo Final Estimado', isBold: true, isHeaderBg: true });
 
+        // Helper que rota clases de color para evitar monotonía y resaltar
+        const colorCycle = ['text-blue','text-green','text-orange','text-purple','text-teal','text-brown','text-pink','text-red'];
+        let colorIdx = 0;
+
         cf_row_definitions.forEach((def, rowIndex) => {
             const tr = tableBodyEl.insertRow();
             const tdLabel = tr.insertCell();
@@ -2544,15 +2548,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     case 'NET_INCOME':
                         value = income_p[i];
+                        colorClass = 'text-green';
                         break;
                     case 'FIXED_EXP_TOTAL':
                         value = -fixed_exp_p[i];
+                        colorClass = 'text-orange';
                         break;
                     case 'VAR_EXP_TOTAL':
                         value = -var_exp_p[i];
+                        colorClass = 'text-purple';
                         break;
                     case 'NET_FLOW':
                         value = net_flow_p[i];
+                        colorClass = value >= 0 ? 'text-green' : 'text-red';
                         break;
                     case 'END_BALANCE':
                         value = end_bal_p[i];
@@ -2560,6 +2568,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     default:
                         value = (def.category && expenses_by_cat_p[i]) ? -(expenses_by_cat_p[i][def.category] || 0) : 0;
+                        // Asignar color rotativo a categorías para variedad visual
+                        colorClass = colorCycle[colorIdx % colorCycle.length];
                 }
                 tdValue.textContent = formatCurrencyJS(value, symbol);
                 tdValue.dataset.periodicity = periodicity;
@@ -2569,6 +2579,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (colorClass) tdValue.classList.add(colorClass);
                 if (def.isBold) tdValue.classList.add('bold');
             }
+            if (def.category) colorIdx++; // avanzar color entre categorías
         });
 
         highlightCurrentPeriodColumn(periodicity, tableHeadEl, tableBodyEl, periodDates);
